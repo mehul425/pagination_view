@@ -1,7 +1,7 @@
 import 'package:example/user.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
-import 'package:pagination_view/pagination_view.dart';
+import 'package:pagination_view/pagination.dart';
 
 void main() => runApp(MyApp());
 
@@ -25,13 +25,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int page;
+  bool showHeader = false;
   PaginationViewType paginationViewType;
+  PaginationHeaderViewType paginationHeaderViewType;
   GlobalKey<PaginationViewState> key;
 
   @override
   void initState() {
     page = -1;
     paginationViewType = PaginationViewType.listView;
+    paginationHeaderViewType = PaginationHeaderViewType.listView;
     key = GlobalKey<PaginationViewState>();
     super.initState();
   }
@@ -42,68 +45,135 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('PaginationView Example'),
         actions: <Widget>[
-          (paginationViewType == PaginationViewType.listView)
-              ? IconButton(
-                  icon: Icon(Icons.grid_on),
-                  onPressed: () => setState(
-                      () => paginationViewType = PaginationViewType.gridView),
-                )
-              : IconButton(
-                  icon: Icon(Icons.list),
-                  onPressed: () => setState(
-                      () => paginationViewType = PaginationViewType.listView),
-                ),
+          Switch(
+              value: showHeader,
+              onChanged: (value) {
+                setState(() {
+                  showHeader = value;
+                });
+              }),
+          showHeader
+              ? (paginationHeaderViewType == PaginationHeaderViewType.listView)
+                  ? IconButton(
+                      icon: Icon(Icons.grid_on),
+                      onPressed: () => setState(() => paginationHeaderViewType =
+                          PaginationHeaderViewType.gridView),
+                    )
+                  : IconButton(
+                      icon: Icon(Icons.list),
+                      onPressed: () => setState(() => paginationHeaderViewType =
+                          PaginationHeaderViewType.listView),
+                    )
+              : (paginationViewType == PaginationViewType.listView)
+                  ? IconButton(
+                      icon: Icon(Icons.grid_on),
+                      onPressed: () => setState(() =>
+                          paginationViewType = PaginationViewType.gridView),
+                    )
+                  : IconButton(
+                      icon: Icon(Icons.list),
+                      onPressed: () => setState(() =>
+                          paginationViewType = PaginationViewType.listView),
+                    ),
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () => key.currentState.refresh(),
           ),
         ],
       ),
-      body: PaginationView<User>(
-        key: key,
-        preloadedItems: <User>[
-          User(faker.person.name(), faker.internet.email()),
-          User(faker.person.name(), faker.internet.email()),
-        ],
-        paginationViewType: paginationViewType,
-        itemBuilder: (BuildContext context, User user, int index) =>
-            (paginationViewType == PaginationViewType.listView)
-                ? ListTile(
-                    title: Text(user.name),
-                    subtitle: Text(user.email),
-                    leading: CircleAvatar(
-                      child: Icon(Icons.person),
-                    ),
-                  )
-                : GridTile(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        CircleAvatar(child: Icon(Icons.person)),
-                        const SizedBox(height: 8),
-                        Text(user.name),
-                        const SizedBox(height: 8),
-                        Text(user.email),
-                      ],
-                    ),
-                  ),
-        pageFetch: pageFetch,
-        pageRefresh: pageRefresh,
-        pullToRefresh: true,
-        onError: (dynamic error) => Center(
-          child: Text('Some error occured'),
-        ),
-        onEmpty: Center(
-          child: Text('Sorry! This is empty'),
-        ),
-        bottomLoader: Center(
-          child: CircularProgressIndicator(),
-        ),
-        initialLoader: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
+      body: showHeader
+          ? PaginationHeaderView<User>(
+              key: key,
+              headerChild: Text("It scrollable header"),
+              preloadedItems: <User>[
+                User(faker.person.name(), faker.internet.email()),
+                User(faker.person.name(), faker.internet.email()),
+              ],
+              paginationViewType: paginationHeaderViewType,
+              itemBuilder: (BuildContext context, User user, int index) =>
+                  (paginationHeaderViewType ==
+                          PaginationHeaderViewType.listView)
+                      ? ListTile(
+                          title: Text(user.name),
+                          subtitle: Text(user.email),
+                          leading: CircleAvatar(
+                            child: Icon(Icons.person),
+                          ),
+                        )
+                      : GridTile(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              CircleAvatar(child: Icon(Icons.person)),
+                              const SizedBox(height: 8),
+                              Text(user.name),
+                              const SizedBox(height: 8),
+                              Text(user.email),
+                            ],
+                          ),
+                        ),
+              pageFetch: pageFetch,
+              pageRefresh: pageRefresh,
+              pullToRefresh: true,
+              onError: (dynamic error) => Center(
+                child: Text('Some error occured'),
+              ),
+              onEmpty: Center(
+                child: Text('Sorry! This is empty'),
+              ),
+              bottomLoader: Center(
+                child: CircularProgressIndicator(),
+              ),
+              initialLoader: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : PaginationView<User>(
+              key: key,
+              preloadedItems: <User>[
+                User(faker.person.name(), faker.internet.email()),
+                User(faker.person.name(), faker.internet.email()),
+              ],
+              paginationViewType: paginationViewType,
+              itemBuilder: (BuildContext context, User user, int index) =>
+                  (paginationViewType == PaginationViewType.listView)
+                      ? ListTile(
+                          title: Text(user.name),
+                          subtitle: Text(user.email),
+                          leading: CircleAvatar(
+                            child: Icon(Icons.person),
+                          ),
+                        )
+                      : GridTile(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              CircleAvatar(child: Icon(Icons.person)),
+                              const SizedBox(height: 8),
+                              Text(user.name),
+                              const SizedBox(height: 8),
+                              Text(user.email),
+                            ],
+                          ),
+                        ),
+              pageFetch: pageFetch,
+              pageRefresh: pageRefresh,
+              pullToRefresh: true,
+              onError: (dynamic error) => Center(
+                child: Text('Some error occured'),
+              ),
+              onEmpty: Center(
+                child: Text('Sorry! This is empty'),
+              ),
+              bottomLoader: Center(
+                child: CircularProgressIndicator(),
+              ),
+              initialLoader: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
     );
   }
 

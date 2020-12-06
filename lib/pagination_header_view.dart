@@ -1,25 +1,23 @@
 part of pagination_view;
 
+enum PaginationHeaderViewType { listView, gridView }
 
-typedef PaginationBuilder<T> = Future<List<T>> Function(int currentListSize);
-
-enum PaginationViewType { listView, gridView }
-
-class PaginationView<T> extends StatefulWidget {
-  const PaginationView({
+class PaginationHeaderView<T> extends StatefulWidget {
+  const PaginationHeaderView({
     Key key,
     @required this.itemBuilder,
+    @required this.headerChild,
     @required this.pageFetch,
     @required this.onEmpty,
     @required this.onError,
     this.pageRefresh,
     this.pullToRefresh = false,
     this.gridDelegate =
-    const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+        const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
     this.preloadedItems = const [],
     this.initialLoader = const InitialLoader(),
     this.bottomLoader = const BottomLoader(),
-    this.paginationViewType = PaginationViewType.listView,
+    this.paginationViewType = PaginationHeaderViewType.listView,
     this.shrinkWrap = false,
     this.reverse = false,
     this.scrollDirection = Axis.vertical,
@@ -31,6 +29,7 @@ class PaginationView<T> extends StatefulWidget {
 
   final Widget bottomLoader;
   final Widget initialLoader;
+  final Widget headerChild;
   final Widget onEmpty;
   final EdgeInsets padding;
   final PaginationBuilder<T> pageFetch;
@@ -41,12 +40,12 @@ class PaginationView<T> extends StatefulWidget {
   final bool reverse;
   final Axis scrollDirection;
   final SliverGridDelegate gridDelegate;
-  final PaginationViewType paginationViewType;
+  final PaginationHeaderViewType paginationViewType;
   final bool shrinkWrap;
   final ScrollController scrollController;
 
   @override
-  PaginationViewState<T> createState() => PaginationViewState<T>();
+  PaginationHeaderViewState<T> createState() => PaginationHeaderViewState<T>();
 
   final Widget Function(BuildContext, T, int) itemBuilder;
   final Widget Function(BuildContext, int) separatorBuilder;
@@ -54,7 +53,7 @@ class PaginationView<T> extends StatefulWidget {
   final Widget Function(dynamic) onError;
 }
 
-class PaginationViewState<T> extends State<PaginationView<T>> {
+class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
   PaginationBloc<T> _bloc;
   ScrollController _scrollController;
 
@@ -72,22 +71,23 @@ class PaginationViewState<T> extends State<PaginationView<T>> {
           if (loadedState.items.isEmpty) {
             return widget.onEmpty;
           }
-          if (widget.paginationViewType == PaginationViewType.gridView) {
+          if (widget.paginationViewType == PaginationHeaderViewType.gridView) {
             if (widget.pullToRefresh) {
               return RefreshIndicator(
                 onRefresh: () async => refresh(),
-                child: _buildNewGridView(loadedState),
+                child: _buildNewHeaderGridView(loadedState),
               );
             }
-            return _buildNewGridView(loadedState);
+            return _buildNewHeaderGridView(loadedState);
           }
+
           if (widget.pullToRefresh) {
             return RefreshIndicator(
               onRefresh: () async => refresh(),
-              child: _buildNewListView(loadedState),
+              child: _buildNewHeaderListView(loadedState),
             );
           }
-          return _buildNewListView(loadedState);
+          return _buildNewHeaderListView(loadedState);
         }
       },
     );
@@ -101,48 +101,60 @@ class PaginationViewState<T> extends State<PaginationView<T>> {
       ..add(PageFetch(callback: widget.pageFetch));
   }
 
-  Widget _buildNewListView(PaginationLoaded<T> loadedState) {
-    return ListView.separated(
+  Widget _buildNewHeaderListView(PaginationLoaded<T> loadedState) {
+    return CustomScrollView(
       controller: _scrollController,
       reverse: widget.reverse,
       shrinkWrap: widget.shrinkWrap,
       scrollDirection: widget.scrollDirection,
       physics: widget.physics,
-      padding: widget.padding,
-      separatorBuilder:
-      widget.separatorBuilder ?? ((_, __) => EmptySeparator()),
-      itemCount: loadedState.hasReachedEnd
-          ? loadedState.items.length
-          : loadedState.items.length + 1,
-      itemBuilder: (context, index) {
-        if (index >= loadedState.items.length) {
-          _bloc.add(PageFetch(callback: widget.pageFetch));
-          return widget.bottomLoader;
-        }
-        return widget.itemBuilder(context, loadedState.items[index], index);
-      },
+      slivers: [
+        SliverToBoxAdapter(child: widget.headerChild),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index >= loadedState.items.length) {
+                _bloc.add(PageFetch(callback: widget.pageFetch));
+                return widget.bottomLoader;
+              }
+              return widget.itemBuilder(
+                  context, loadedState.items[index], index);
+            },
+            childCount: loadedState.hasReachedEnd
+                ? loadedState.items.length
+                : loadedState.items.length + 1,
+          ),
+        )
+      ],
     );
   }
 
-  Widget _buildNewGridView(PaginationLoaded<T> loadedState) {
-    return GridView.builder(
-      gridDelegate: widget.gridDelegate,
+  Widget _buildNewHeaderGridView(PaginationLoaded<T> loadedState) {
+    return CustomScrollView(
       controller: _scrollController,
       reverse: widget.reverse,
       shrinkWrap: widget.shrinkWrap,
       scrollDirection: widget.scrollDirection,
       physics: widget.physics,
-      padding: widget.padding,
-      itemCount: loadedState.hasReachedEnd
-          ? loadedState.items.length
-          : loadedState.items.length + 1,
-      itemBuilder: (context, index) {
-        if (index >= loadedState.items.length) {
-          _bloc.add(PageFetch(callback: widget.pageFetch));
-          return widget.bottomLoader;
-        }
-        return widget.itemBuilder(context, loadedState.items[index], index);
-      },
+      slivers: [
+        SliverToBoxAdapter(child: widget.headerChild),
+        SliverGrid(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index >= loadedState.items.length) {
+                _bloc.add(PageFetch(callback: widget.pageFetch));
+                return widget.bottomLoader;
+              }
+              return widget.itemBuilder(
+                  context, loadedState.items[index], index);
+            },
+            childCount: loadedState.hasReachedEnd
+                ? loadedState.items.length
+                : loadedState.items.length + 1,
+          ),
+          gridDelegate: widget.gridDelegate,
+        )
+      ],
     );
   }
 
