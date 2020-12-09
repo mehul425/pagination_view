@@ -39,18 +39,11 @@ class PageRefreshed<T> implements PaginationEvent<T> {
 }
 
 class PageItemChange<T> implements PaginationEvent<T> {
-  PageItemChange({
-    @required this.index,
-    @required this.item,
-  });
+  PageItemChange({@required this.changeItem});
 
-  final int index;
-  final T item;
+  final Function changeItem;
 
-  PageItemChange<T> copyWith({int index, T item}) {
-    return PageItemChange<T>(
-      index: index ?? this.index,
-      item: item ?? this.item,
-    );
+  PageItemChange<T> copyWith({Function changeItem}) {
+    return PageItemChange<T>(changeItem: changeItem ?? this.changeItem);
   }
 }

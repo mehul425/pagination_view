@@ -142,8 +142,11 @@ class _HomePageState extends State<HomePage> {
                   (paginationViewType == PaginationViewType.listView)
                       ? ListTile(
                           onTap: () {
-                            key.currentState
-                                .itemChange(user.copyWith(name: "abc"), index);
+                            key.currentState.itemChange((List<User> list) {
+                              list.removeAt(index);
+                              list.insert(index, user.copyWith(name: "abc"));
+                              return list;
+                            });
                           },
                           title: Text(user.name),
                           subtitle: Text(user.email),

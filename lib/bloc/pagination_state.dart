@@ -7,6 +7,7 @@ class PaginationInitial<T> extends PaginationState<T> {}
 
 class PaginationError<T> extends PaginationState<T> {
   final dynamic error;
+
   PaginationError({@required this.error});
 
   @override
@@ -30,16 +31,15 @@ class PaginationLoaded<T> extends PaginationState<T> {
   final List<T> items;
 
   @override
-  int get hashCode => items.hashCode ^ hasReachedEnd.hashCode;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PaginationLoaded &&
+          runtimeType == other.runtimeType &&
+          hasReachedEnd == other.hasReachedEnd &&
+          items == other.items;
 
   @override
-  bool operator ==(Object o) {
-    if (identical(this, o)) return true;
-
-    return o is PaginationLoaded<T> &&
-        listEquals(o.items, items) &&
-        o.hasReachedEnd == hasReachedEnd;
-  }
+  int get hashCode => hasReachedEnd.hashCode ^ items.hashCode;
 
   PaginationLoaded<T> copyWith({
     List<T> items,

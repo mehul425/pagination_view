@@ -167,7 +167,7 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
     ));
   }
 
-  void itemChange(T item, int index) {
-    _bloc.add(PageItemChange( item: item,index: index));
+  void itemChange(Function changeItem) {
+    _bloc.add(PageItemChange<T>(changeItem: changeItem));
   }
 }

@@ -1,6 +1,5 @@
 part of pagination_view;
 
-
 typedef PaginationBuilder<T> = Future<List<T>> Function(int currentListSize);
 
 enum PaginationViewType { listView, gridView }
@@ -15,7 +14,7 @@ class PaginationView<T> extends StatefulWidget {
     this.pageRefresh,
     this.pullToRefresh = false,
     this.gridDelegate =
-    const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+        const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
     this.preloadedItems = const [],
     this.initialLoader = const InitialLoader(),
     this.bottomLoader = const BottomLoader(),
@@ -110,7 +109,7 @@ class PaginationViewState<T> extends State<PaginationView<T>> {
       physics: widget.physics,
       padding: widget.padding,
       separatorBuilder:
-      widget.separatorBuilder ?? ((_, __) => EmptySeparator()),
+          widget.separatorBuilder ?? ((_, __) => EmptySeparator()),
       itemCount: loadedState.hasReachedEnd
           ? loadedState.items.length
           : loadedState.items.length + 1,
@@ -156,9 +155,7 @@ class PaginationViewState<T> extends State<PaginationView<T>> {
     ));
   }
 
-
-  void itemChange(T item, int index) {
-    print("item change $item $index");
-    _bloc.add(PageItemChange( item: item,index: index));
+  void itemChange(Function changeItem) {
+    _bloc.add(PageItemChange<T>(changeItem: changeItem));
   }
 }

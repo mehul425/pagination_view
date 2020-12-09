@@ -72,16 +72,14 @@ class PaginationBloc<T> extends Bloc<PaginationEvent<T>, PaginationState<T>> {
       final currentState = state;
       final pageItemChange = event as PageItemChange;
       print("item change");
+      print(currentState);
       try {
         if (currentState is PaginationInitial) {
           return;
         }
-        print("${currentState is PaginationLoaded}");
-
         if (currentState is PaginationLoaded<T>) {
-          List<T> list = List.from(currentState.items);
-          list.removeAt(pageItemChange.index);
-          list.insert(pageItemChange.index, pageItemChange.item);
+          List<T> list1 = List.from(currentState.items);
+          var list = pageItemChange.changeItem(list1);
           yield PaginationLoaded(
             items: list,
             hasReachedEnd: list.isEmpty,
