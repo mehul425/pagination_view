@@ -82,7 +82,7 @@ class PaginationBloc<T> extends Bloc<PaginationEvent<T>, PaginationState<T>> {
           var list = pageItemChange.changeItem(list1);
           yield PaginationLoaded(
             items: list,
-            hasReachedEnd: list.isEmpty,
+            hasReachedEnd: currentState.hasReachedEnd,
           );
         }
       } on Exception catch (error) {
