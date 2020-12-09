@@ -1,6 +1,7 @@
 import 'package:example/user.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
+import 'package:pagination_view/bloc/pagination_bloc.dart';
 import 'package:pagination_view/pagination.dart';
 
 void main() => runApp(MyApp());
@@ -94,6 +95,7 @@ class _HomePageState extends State<HomePage> {
                   (paginationHeaderViewType ==
                           PaginationHeaderViewType.listView)
                       ? ListTile(
+                          onTap: () {},
                           title: Text(user.name),
                           subtitle: Text(user.email),
                           leading: CircleAvatar(
@@ -139,6 +141,10 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (BuildContext context, User user, int index) =>
                   (paginationViewType == PaginationViewType.listView)
                       ? ListTile(
+                          onTap: () {
+                            key.currentState
+                                .itemChange(user.copyWith(name: "abc"), index);
+                          },
                           title: Text(user.name),
                           subtitle: Text(user.email),
                           leading: CircleAvatar(

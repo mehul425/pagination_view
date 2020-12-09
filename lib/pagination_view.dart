@@ -155,4 +155,10 @@ class PaginationViewState<T> extends State<PaginationView<T>> {
       scrollController: _scrollController,
     ));
   }
+
+
+  void itemChange(T item, int index) {
+    print("item change $item $index");
+    _bloc.add(PageItemChange( item: item,index: index));
+  }
 }

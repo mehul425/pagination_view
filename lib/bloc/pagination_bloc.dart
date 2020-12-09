@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 part 'pagination_event.dart';
+
 part 'pagination_state.dart';
 
 class PaginationBloc<T> extends Bloc<PaginationEvent<T>, PaginationState<T>> {
@@ -51,6 +52,7 @@ class PaginationBloc<T> extends Bloc<PaginationEvent<T>, PaginationState<T>> {
         if (currentState is PaginationInitial) {
           return;
         }
+        yield PaginationInitial();
         if (currentState is PaginationLoaded<T>) {
           final refreshedItems = await refreshEvent.callback(0);
           yield PaginationLoaded(
@@ -60,6 +62,30 @@ class PaginationBloc<T> extends Bloc<PaginationEvent<T>, PaginationState<T>> {
           if (refreshEvent.scrollController.hasClients) {
             refreshEvent.scrollController.jumpTo(0);
           }
+        }
+      } on Exception catch (error) {
+        yield PaginationError(error: error);
+      }
+    }
+
+    if (event is PageItemChange) {
+      final currentState = state;
+      final pageItemChange = event as PageItemChange;
+      print("item change");
+      try {
+        if (currentState is PaginationInitial) {
+          return;
+        }
+        print("${currentState is PaginationLoaded}");
+
+        if (currentState is PaginationLoaded<T>) {
+          List<T> list = List.from(currentState.items);
+          list.removeAt(pageItemChange.index);
+          list.insert(pageItemChange.index, pageItemChange.item);
+          yield PaginationLoaded(
+            items: list,
+            hasReachedEnd: list.isEmpty,
+          );
         }
       } on Exception catch (error) {
         yield PaginationError(error: error);

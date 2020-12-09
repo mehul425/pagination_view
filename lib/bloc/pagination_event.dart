@@ -37,3 +37,20 @@ class PageRefreshed<T> implements PaginationEvent<T> {
     );
   }
 }
+
+class PageItemChange<T> implements PaginationEvent<T> {
+  PageItemChange({
+    @required this.index,
+    @required this.item,
+  });
+
+  final int index;
+  final T item;
+
+  PageItemChange<T> copyWith({int index, T item}) {
+    return PageItemChange<T>(
+      index: index ?? this.index,
+      item: item ?? this.item,
+    );
+  }
+}

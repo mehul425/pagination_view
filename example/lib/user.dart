@@ -3,4 +3,8 @@ class User {
 
   final String name;
   final String email;
+
+  User copyWith({String name, String email}) {
+    return User(name ?? this.name, email ?? this.email);
+  }
 }

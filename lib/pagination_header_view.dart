@@ -49,13 +49,12 @@ class PaginationHeaderView<T> extends StatefulWidget {
 
   final Widget Function(BuildContext, T, int) itemBuilder;
   final Widget Function(BuildContext, int) separatorBuilder;
-
   final Widget Function(dynamic) onError;
 }
 
 class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
-  PaginationBloc<T> _bloc;
   ScrollController _scrollController;
+  PaginationBloc<T> _bloc;
 
   @override
   Widget build(BuildContext context) {
@@ -166,5 +165,9 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
       callback: widget.pageRefresh,
       scrollController: _scrollController,
     ));
+  }
+
+  void itemChange(T item, int index) {
+    _bloc.add(PageItemChange( item: item,index: index));
   }
 }
