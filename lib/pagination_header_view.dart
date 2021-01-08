@@ -12,8 +12,8 @@ class PaginationHeaderView<T> extends StatefulWidget {
     @required this.onError,
     this.pageRefresh,
     this.pullToRefresh = false,
-    this.gridDelegate =
-        const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
     this.preloadedItems = const [],
     this.initialLoader = const InitialLoader(),
     this.bottomLoader = const BottomLoader(),
@@ -39,7 +39,8 @@ class PaginationHeaderView<T> extends StatefulWidget {
   final bool pullToRefresh;
   final bool reverse;
   final Axis scrollDirection;
-  final SliverGridDelegate gridDelegate;
+  final double mainAxisSpacing;
+  final double crossAxisSpacing;
   final PaginationHeaderViewType paginationViewType;
   final bool shrinkWrap;
   final ScrollController scrollController;
@@ -137,7 +138,7 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
       physics: widget.physics,
       slivers: [
         SliverToBoxAdapter(child: widget.headerChild),
-        SliverGrid(
+        SliverStaggeredGrid(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               if (index >= loadedState.items.length) {
@@ -151,8 +152,16 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
                 ? loadedState.items.length
                 : loadedState.items.length + 1,
           ),
-          gridDelegate: widget.gridDelegate,
-        )
+          gridDelegate: SliverStaggeredGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: widget.mainAxisSpacing,
+            crossAxisSpacing: widget.crossAxisSpacing,
+            staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+            staggeredTileCount: loadedState.hasReachedEnd
+                ? loadedState.items.length
+                : loadedState.items.length + 1,
+          ),
+        ),
       ],
     );
   }

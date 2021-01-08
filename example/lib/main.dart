@@ -102,19 +102,9 @@ class _HomePageState extends State<HomePage> {
                             child: Icon(Icons.person),
                           ),
                         )
-                      : GridTile(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              CircleAvatar(child: Icon(Icons.person)),
-                              const SizedBox(height: 8),
-                              Text(user.name),
-                              const SizedBox(height: 8),
-                              Text(user.email),
-                            ],
-                          ),
-                        ),
+                      : Container(
+                    child: Icon(Icons.person,size: 80,),
+                  ),
               pageFetch: pageFetch,
               pageRefresh: pageRefresh,
               pullToRefresh: true,
@@ -154,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                             child: Icon(Icons.person),
                           ),
                         )
-                      : GridTile(
+                      : Container(
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
