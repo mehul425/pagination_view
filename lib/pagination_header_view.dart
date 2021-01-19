@@ -68,26 +68,41 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
           return widget.onError(state.error);
         } else {
           final loadedState = state as PaginationLoaded<T>;
-          if (loadedState.items.isEmpty) {
-            return widget.onEmpty;
-          }
           if (widget.paginationViewType == PaginationHeaderViewType.gridView) {
             if (widget.pullToRefresh) {
               return RefreshIndicator(
                 onRefresh: () async => refresh(),
-                child: _buildNewHeaderGridView(loadedState),
+                child: loadedState.items.isEmpty
+                    ? SingleChildScrollView(
+                        physics: widget.physics,
+                        child: Container(
+                            height: MediaQuery.of(context).size.height,
+                            child: widget.onEmpty),
+                      )
+                    : _buildNewHeaderGridView(loadedState),
               );
             }
-            return _buildNewHeaderGridView(loadedState);
+            return loadedState.items.isEmpty
+                ? widget.onEmpty
+                : _buildNewHeaderGridView(loadedState);
           }
 
           if (widget.pullToRefresh) {
             return RefreshIndicator(
               onRefresh: () async => refresh(),
-              child: _buildNewHeaderListView(loadedState),
+              child: loadedState.items.isEmpty
+                  ? SingleChildScrollView(
+                      physics: widget.physics,
+                      child: Container(
+                          height: MediaQuery.of(context).size.height,
+                          child: widget.onEmpty),
+                    )
+                  : _buildNewHeaderListView(loadedState),
             );
           }
-          return _buildNewHeaderListView(loadedState);
+          return loadedState.items.isEmpty
+              ? widget.onEmpty
+              : _buildNewHeaderListView(loadedState);
         }
       },
     );
