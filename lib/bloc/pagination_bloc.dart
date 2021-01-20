@@ -71,8 +71,6 @@ class PaginationBloc<T> extends Bloc<PaginationEvent<T>, PaginationState<T>> {
     if (event is PageItemChange) {
       final currentState = state;
       final pageItemChange = event as PageItemChange;
-      print("item change");
-      print(currentState);
       try {
         if (currentState is PaginationInitial) {
           return;

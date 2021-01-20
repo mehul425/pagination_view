@@ -65,6 +65,19 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
         if (state is PaginationInitial<T>) {
           return widget.initialLoader;
         } else if (state is PaginationError<T>) {
+          if (widget.pullToRefresh) {
+            return RefreshIndicator(
+                onRefresh: () async => refresh(),
+                child: CustomScrollView(
+                  physics: widget.physics,
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: widget.onError(state.error),
+                    ),
+                  ],
+                ));
+          }
           return widget.onError(state.error);
         } else {
           final loadedState = state as PaginationLoaded<T>;
@@ -86,16 +99,18 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
                 ? widget.onEmpty
                 : _buildNewHeaderGridView(loadedState);
           }
-
           if (widget.pullToRefresh) {
             return RefreshIndicator(
               onRefresh: () async => refresh(),
               child: loadedState.items.isEmpty
-                  ? SingleChildScrollView(
+                  ? CustomScrollView(
                       physics: widget.physics,
-                      child: Container(
-                          height: MediaQuery.of(context).size.height,
-                          child: widget.onEmpty),
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: widget.onEmpty,
+                        ),
+                      ],
                     )
                   : _buildNewHeaderListView(loadedState),
             );
