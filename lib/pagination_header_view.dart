@@ -86,11 +86,14 @@ class PaginationHeaderViewState<T> extends State<PaginationHeaderView<T>> {
               return RefreshIndicator(
                 onRefresh: () async => refresh(),
                 child: loadedState.items.isEmpty
-                    ? SingleChildScrollView(
+                    ? CustomScrollView(
                         physics: widget.physics,
-                        child: Container(
-                            height: MediaQuery.of(context).size.height,
-                            child: widget.onEmpty),
+                        slivers: [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: widget.onEmpty,
+                          ),
+                        ],
                       )
                     : _buildNewHeaderGridView(loadedState),
               );
